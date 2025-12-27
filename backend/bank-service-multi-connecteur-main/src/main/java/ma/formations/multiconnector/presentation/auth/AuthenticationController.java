@@ -1,11 +1,9 @@
 package ma.formations.multiconnector.presentation.auth;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import ma.formations.multiconnector.dtos.TokenVo;
-import ma.formations.multiconnector.dtos.user.CreateUserRequest;
-import ma.formations.multiconnector.dtos.user.RoleVo;
-import ma.formations.multiconnector.dtos.user.UserRequest;
-import ma.formations.multiconnector.dtos.user.UserVo;
+import ma.formations.multiconnector.dtos.user.*;
 import ma.formations.multiconnector.jwt.JwtUtils;
 import ma.formations.multiconnector.service.IUserService;
 import ma.formations.multiconnector.service.exception.BusinessException;
@@ -69,6 +67,21 @@ public class AuthenticationController {
                 createUserRequest.username()), HttpStatus.CREATED);
     }
 
-
+    /**
+     * UC-1 : Changer mot de passe
+     * L'utilisateur connecté peut changer son mot de passe
+     */
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @RequestBody @Valid ChangePasswordRequest request,
+            Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            userService.changePassword(username, request.getOldPassword(), request.getNewPassword());
+            return ResponseEntity.ok("Mot de passe changé avec succès");
+        } catch (BusinessException e) {
+            throw e;
+        }
+    }
 
 }

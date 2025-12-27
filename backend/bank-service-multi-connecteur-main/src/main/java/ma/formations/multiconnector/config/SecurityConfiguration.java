@@ -70,12 +70,18 @@ public class SecurityConfiguration {
         http.cors(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> {
+            // Routes publiques (SEULEMENT signin et signup)
             auth.requestMatchers(
                     new AntPathRequestMatcher("/"),
-                    new AntPathRequestMatcher("/auth/**"),
+                    new AntPathRequestMatcher("/auth/signin"),
+                    new AntPathRequestMatcher("/auth/signup"),
                     new AntPathRequestMatcher("/h2/**"),
                     new AntPathRequestMatcher("/h2/login.do**")
             ).permitAll();
+
+            // Change password nécessite authentification
+            auth.requestMatchers(new AntPathRequestMatcher("/auth/change-password"))
+                    .authenticated();
 
           /*  auth.requestMatchers(new AntPathRequestMatcher("/api/rest/customer/identity/**")).
                     hasAnyAuthority("AGENT_GUICHET", "CLIENT");

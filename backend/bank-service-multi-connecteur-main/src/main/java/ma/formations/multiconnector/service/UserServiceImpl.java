@@ -8,6 +8,7 @@ import ma.formations.multiconnector.dao.UserRepository;
 import ma.formations.multiconnector.dtos.user.PermissionVo;
 import ma.formations.multiconnector.dtos.user.RoleVo;
 import ma.formations.multiconnector.dtos.user.UserVo;
+import ma.formations.multiconnector.service.exception.BusinessException;
 import ma.formations.multiconnector.service.model.Permission;
 import ma.formations.multiconnector.service.model.Role;
 import ma.formations.multiconnector.service.model.User;
@@ -78,7 +79,25 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     public PermissionVo getPermissionByName(String authority) {
         return modelMapper.map(permissionRepository.findByAuthority(authority), PermissionVo.class);
     }
+    /**
+     * UC-1 : Changer mot de passe
+     * L'utilisateur doit fournir son ancien mot de passe pour le changer
+     */
+    @Override
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        // Récupérer l'utilisateur
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException("Utilisateur introuvable"));
 
+        // Vérifier que l'ancien mot de passe est correct
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException("L'ancien mot de passe est incorrect");
+        }
+
+        // Crypter et sauvegarder le nouveau mot de passe (RG_1)
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 
 
 }

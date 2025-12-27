@@ -11,4 +11,6 @@ public interface IUserService {
     RoleVo getRoleByName(String role);
     PermissionVo getPermissionByName(String authority);
 
+    // NOUVELLE MÉTHODE pour UC-1 : Changer mot de passe
+    void changePassword(String username, String oldPassword, String newPassword);
 }
