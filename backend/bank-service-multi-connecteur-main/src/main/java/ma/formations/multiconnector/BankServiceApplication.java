@@ -210,35 +210,36 @@ public class BankServiceApplication {
 
             // ============================================
             // ÉTAPE 5 : CRÉER LES COMPTES BANCAIRES
+            // RIB CORRIGÉS : UNIQUEMENT DES CHIFFRES (RG_9)
             // ============================================
             System.out.println("📝 Création des comptes bancaires...");
 
             bankAccountService.saveBankAccount(AddBankAccountRequest.builder()
-                    .rib("RIB_1")
+                    .rib("111111111111111111111111")  // ✅ RIB valide : 24 chiffres
                     .amount(1000000d)
                     .customerIdentityRef("A100")
                     .build());
 
             bankAccountService.saveBankAccount(AddBankAccountRequest.builder()
-                    .rib("RIB_11")
+                    .rib("111111111111111111111112")  // ✅ RIB valide : 24 chiffres
                     .amount(2000000d)
                     .customerIdentityRef("A100")
                     .build());
 
             bankAccountService.saveBankAccount(AddBankAccountRequest.builder()
-                    .rib("RIB_2")
+                    .rib("222222222222222222222222")  // ✅ RIB valide : 24 chiffres
                     .amount(2000000d)
                     .customerIdentityRef("A200")
                     .build());
 
             bankAccountService.saveBankAccount(AddBankAccountRequest.builder()
-                    .rib("RIB_9")
+                    .rib("999999999999999999999999")  // ✅ RIB valide : 24 chiffres
                     .amount(-25000d)
                     .customerIdentityRef("A900")
                     .build());
 
             bankAccountService.saveBankAccount(AddBankAccountRequest.builder()
-                    .rib("RIB_8")
+                    .rib("888888888888888888888888")  // ✅ RIB valide : 24 chiffres
                     .amount(0.0)
                     .customerIdentityRef("A800")
                     .build());
@@ -247,33 +248,34 @@ public class BankServiceApplication {
 
             // ============================================
             // ÉTAPE 6 : EFFECTUER DES VIREMENTS
+            // RIB CORRIGÉS DANS LES VIREMENTS
             // ============================================
             System.out.println("📝 Exécution des virements...");
 
             transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("RIB_1")
-                    .ribTo("RIB_2")
+                    .ribFrom("111111111111111111111111")  // ✅ RIB valide
+                    .ribTo("222222222222222222222222")    // ✅ RIB valide
                     .amount(10000.0)
                     .username("user1")
                     .build());
 
             transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("RIB_1")
-                    .ribTo("RIB_9")
+                    .ribFrom("111111111111111111111111")  // ✅ RIB valide
+                    .ribTo("999999999999999999999999")    // ✅ RIB valide
                     .amount(20000.0)
                     .username("user1")
                     .build());
 
             transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("RIB_1")
-                    .ribTo("RIB_8")
+                    .ribFrom("111111111111111111111111")  // ✅ RIB valide
+                    .ribTo("888888888888888888888888")    // ✅ RIB valide
                     .amount(500.0)
                     .username("user1")
                     .build());
 
             transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("RIB_2")
-                    .ribTo("RIB_11")
+                    .ribFrom("222222222222222222222222")  // ✅ RIB valide
+                    .ribTo("111111111111111111111112")    // ✅ RIB valide
                     .amount(300.0)
                     .username("user2")
                     .build());
