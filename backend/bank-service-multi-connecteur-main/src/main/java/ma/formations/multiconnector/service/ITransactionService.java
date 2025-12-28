@@ -7,6 +7,12 @@ import ma.formations.multiconnector.dtos.transaction.TransactionDto;
 
 import java.util.List;
 public interface ITransactionService {
-    AddWirerTransferResponse wiredTransfer(AddWirerTransferRequest dto);
+    /**
+     * UC-5 : Effectuer un virement
+     * @param dto Les données du virement (ribFrom, ribTo, amount)
+     * @param username Le username de l'utilisateur connecté (depuis JWT)
+     * @return La réponse avec les 2 transactions créées
+     */
+    AddWirerTransferResponse wiredTransfer(AddWirerTransferRequest dto ,String username);
     List<TransactionDto> getTransactions(GetTransactionListRequest dto);
 }

@@ -247,38 +247,46 @@ public class BankServiceApplication {
             System.out.println("✅ Comptes bancaires créés");
 
             // ============================================
-            // ÉTAPE 6 : EFFECTUER DES VIREMENTS
-            // RIB CORRIGÉS DANS LES VIREMENTS
+            // ÉTAPE 6 : EFFECTUER DES VIREMENTS (UC-5 CORRIGÉ)
+            // USERNAME PASSÉ COMME 2ÈME PARAMÈTRE
             // ============================================
             System.out.println("📝 Exécution des virements...");
 
-            transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("111111111111111111111111")  // ✅ RIB valide
-                    .ribTo("222222222222222222222222")    // ✅ RIB valide
-                    .amount(10000.0)
-                    .username("user1")
-                    .build());
+            transactionService.wiredTransfer(
+                    AddWirerTransferRequest.builder()
+                            .ribFrom("111111111111111111111111")
+                            .ribTo("222222222222222222222222")
+                            .amount(10000.0)
+                            .build(),
+                    "user1"  // ✅ Username passé comme 2ème paramètre
+            );
 
-            transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("111111111111111111111111")  // ✅ RIB valide
-                    .ribTo("999999999999999999999999")    // ✅ RIB valide
-                    .amount(20000.0)
-                    .username("user1")
-                    .build());
+            transactionService.wiredTransfer(
+                    AddWirerTransferRequest.builder()
+                            .ribFrom("111111111111111111111111")
+                            .ribTo("999999999999999999999999")
+                            .amount(20000.0)
+                            .build(),
+                    "user1"  // ✅ Username passé comme 2ème paramètre
+            );
 
-            transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("111111111111111111111111")  // ✅ RIB valide
-                    .ribTo("888888888888888888888888")    // ✅ RIB valide
-                    .amount(500.0)
-                    .username("user1")
-                    .build());
+            transactionService.wiredTransfer(
+                    AddWirerTransferRequest.builder()
+                            .ribFrom("111111111111111111111111")
+                            .ribTo("888888888888888888888888")
+                            .amount(500.0)
+                            .build(),
+                    "user1"  // ✅ Username passé comme 2ème paramètre
+            );
 
-            transactionService.wiredTransfer(AddWirerTransferRequest.builder()
-                    .ribFrom("222222222222222222222222")  // ✅ RIB valide
-                    .ribTo("111111111111111111111112")    // ✅ RIB valide
-                    .amount(300.0)
-                    .username("user2")
-                    .build());
+            transactionService.wiredTransfer(
+                    AddWirerTransferRequest.builder()
+                            .ribFrom("222222222222222222222222")
+                            .ribTo("111111111111111111111112")
+                            .amount(300.0)
+                            .build(),
+                    "user2"  // ✅ Username passé comme 2ème paramètre
+            );
 
             System.out.println("✅ Virements effectués");
 

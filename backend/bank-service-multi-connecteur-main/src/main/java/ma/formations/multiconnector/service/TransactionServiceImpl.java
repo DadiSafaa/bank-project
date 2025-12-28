@@ -23,6 +23,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implémentation du service de transactions
+ * UC-5 : Nouveau virement (avec messages d'erreur adaptés)
+ */
 @Service
 @Transactional
 @AllArgsConstructor
@@ -30,90 +34,117 @@ public class TransactionServiceImpl implements ITransactionService {
 
     private final BankAccountRepository bankAccountRepository;
     private final BankAccountTransactionRepository bankAccountTransactionRepository;
-
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
-    private ModelMapper modelMapper;
-
-
+    /**
+     * UC-5 : Effectuer un nouveau virement
+     * Respecte RG_11, RG_12, RG_13, RG_14, RG_15
+     */
     @Override
-    public AddWirerTransferResponse wiredTransfer(AddWirerTransferRequest dto) {
+    public AddWirerTransferResponse wiredTransfer(AddWirerTransferRequest dto, String username) {
+        String ribFrom = dto.getRibFrom();
+        String ribTo = dto.getRibTo();
+        Double amount = dto.getAmount();
 
-        BankAccountTransaction transactionFrom = BankAccountTransaction.builder().
-                amount(dto.getAmount()).
-                transactionType(TransactionType.DEBIT).
-                bankAccount(BankAccount.builder().rib(dto.getRibFrom()).build()).
-                user(new User(dto.getUsername())).
-                build();
+        // Vérifier que l'utilisateur existe
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(
+                        String.format("Utilisateur [%s] introuvable", username)));
 
-        BankAccountTransaction transactionTo = BankAccountTransaction.builder().
-                amount(dto.getAmount()).
-                transactionType(TransactionType.CREDIT).
-                bankAccount(BankAccount.builder().rib(dto.getRibTo()).build()).
-                user(new User(dto.getUsername())).
-                build();
+        // Récupérer le compte émetteur
+        BankAccount bankAccountFrom = bankAccountRepository.findByRib(ribFrom)
+                .orElseThrow(() -> new BusinessException(
+                        String.format("Le compte avec le RIB %s n'existe pas", ribFrom)));
 
-        String username = transactionFrom.getUser().getUsername();
-        String ribFrom = transactionFrom.getBankAccount().getRib();
-        String ribTo = transactionTo.getBankAccount().getRib();
-        Double amount = transactionFrom.getAmount();
+        // Récupérer le compte destinataire
+        BankAccount bankAccountTo = bankAccountRepository.findByRib(ribTo)
+                .orElseThrow(() -> new BusinessException(
+                        String.format("Le compte destinataire avec le RIB %s n'existe pas", ribTo)));
 
-        User user = userRepository.findByUsername(username).
-                orElseThrow(() -> new BusinessException(String.format("User [%s] doesn't exist", username)));
-
-        BankAccount bankAccountFrom = bankAccountRepository.findByRib(ribFrom).
-                orElseThrow(() -> new BusinessException(String.format("No bank account have the rib %s", ribFrom)));
-
-        BankAccount bankAccountTo = bankAccountRepository.findByRib(ribTo).
-                orElseThrow(() -> new BusinessException(String.format("No bank account have the rib %s", ribTo)));
-
+        // Vérifier les règles métier (RG_11, RG_12)
         checkBusinessRules(bankAccountFrom, bankAccountTo, amount);
-        //On débite le compte demandeur
+
+        // RG_13 : Débiter le compte émetteur
         bankAccountFrom.setAmount(bankAccountFrom.getAmount() - amount);
-        //On crédite le compte destinataire
+
+        // RG_14 : Créditer le compte destinataire
         bankAccountTo.setAmount(bankAccountTo.getAmount() + amount);
 
-        transactionFrom.setCreatedAt(new Date());
-        transactionFrom.setUser(user);
-        transactionFrom.setBankAccount(bankAccountFrom);
+        // RG_15 : Tracer les deux opérations avec leurs dates précises
+        Date now = new Date();
 
-        transactionTo.setCreatedAt(new Date());
-        transactionTo.setUser(user);
-        transactionTo.setBankAccount(bankAccountTo);
+        // Transaction DEBIT (débit du compte émetteur)
+        BankAccountTransaction transactionFrom = BankAccountTransaction.builder()
+                .amount(amount)
+                .transactionType(TransactionType.DEBIT)
+                .bankAccount(bankAccountFrom)
+                .user(user)
+                .createdAt(now)
+                .build();
+
+        // Transaction CREDIT (crédit du compte destinataire)
+        BankAccountTransaction transactionTo = BankAccountTransaction.builder()
+                .amount(amount)
+                .transactionType(TransactionType.CREDIT)
+                .bankAccount(bankAccountTo)
+                .user(user)
+                .createdAt(now)
+                .build();
+
+        // Sauvegarder les transactions
         bankAccountTransactionRepository.save(transactionFrom);
         bankAccountTransactionRepository.save(transactionTo);
-        return AddWirerTransferResponse.builder().
-                message(String.format("the transfer of an amount of %s from the %s bank account to %s was carried out successfully",
-                        dto.getAmount(), dto.getRibFrom(), dto.getRibTo())).
-                transactionFrom(modelMapper.map(transactionFrom, TransactionDto.class)).
-                transactionTo(modelMapper.map(transactionTo, TransactionDto.class)).
-                build();
+
+        // Préparer la réponse
+        return AddWirerTransferResponse.builder()
+                .message(String.format(
+                        "Virement de %.2f MAD du compte %s vers le compte %s effectué avec succès",
+                        amount, ribFrom, ribTo))
+                .transactionFrom(modelMapper.map(transactionFrom, TransactionDto.class))
+                .transactionTo(modelMapper.map(transactionTo, TransactionDto.class))
+                .build();
     }
 
+    /**
+     * Vérifier les règles métier pour un virement
+     * RG_11 : Le compte ne doit pas être bloqué ou clôturé
+     * RG_12 : Le solde doit être suffisant
+     */
     private void checkBusinessRules(BankAccount bankAccountFrom, BankAccount bankAccountTo, Double amount) {
+        // RG_11 : Vérifier que le compte émetteur n'est pas bloqué ou clôturé
+        if (bankAccountFrom.getAccountStatus() == AccountStatus.CLOSED) {
+            throw new BusinessException("Compte bancaire bloqué ou clôturé");
+        }
 
-        if (bankAccountFrom.getAccountStatus().equals(AccountStatus.CLOSED))
-            throw new BusinessException(String.format("the bank account %s is closed !!", bankAccountFrom.getRib()));
+        if (bankAccountFrom.getAccountStatus() == AccountStatus.BLOCKED) {
+            throw new BusinessException("Compte bancaire bloqué ou clôturé");
+        }
 
-        if (bankAccountFrom.getAccountStatus().equals(AccountStatus.BLOCKED))
-            throw new BusinessException(String.format("the bank account %s is blocked !!", bankAccountFrom.getRib()));
+        // Vérifier que le compte destinataire n'est pas bloqué ou clôturé
+        if (bankAccountTo.getAccountStatus() == AccountStatus.CLOSED) {
+            throw new BusinessException(
+                    String.format("Le compte destinataire %s est clôturé", bankAccountTo.getRib()));
+        }
 
-        if (bankAccountTo.getAccountStatus().equals(AccountStatus.CLOSED))
-            throw new BusinessException(String.format("the bank account %s is closed !!", bankAccountTo.getRib()));
+        if (bankAccountTo.getAccountStatus() == AccountStatus.BLOCKED) {
+            throw new BusinessException(
+                    String.format("Le compte destinataire %s est bloqué", bankAccountTo.getRib()));
+        }
 
-        if (bankAccountTo.getAccountStatus().equals(AccountStatus.BLOCKED))
-            throw new BusinessException(String.format("the bank account %s is blocked !!", bankAccountTo.getRib()));
-
-        if (bankAccountFrom.getAmount() < amount)
-            throw new BusinessException(String.format("the balance of account number %s is less than %s", bankAccountFrom.getRib(), amount));
+        // RG_12 : Vérifier que le solde est suffisant
+        if (bankAccountFrom.getAmount() < amount) {
+            throw new BusinessException("Solde insuffisant");
+        }
     }
-
 
     @Override
     public List<TransactionDto> getTransactions(GetTransactionListRequest requestDTO) {
         GetTransactionListBo data = modelMapper.map(requestDTO, GetTransactionListBo.class);
         return bankAccountTransactionRepository.findByBankAccount_RibAndCreatedAtBetween(
-                        data.getRib(), data.getDateFrom(), data.getDateTo()).
-                stream().map(bo -> modelMapper.map(bo, TransactionDto.class)).collect(Collectors.toList());
+                        data.getRib(), data.getDateFrom(), data.getDateTo())
+                .stream()
+                .map(bo -> modelMapper.map(bo, TransactionDto.class))
+                .collect(Collectors.toList());
     }
 }

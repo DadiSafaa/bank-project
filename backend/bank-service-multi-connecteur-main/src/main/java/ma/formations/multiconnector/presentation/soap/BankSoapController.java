@@ -17,14 +17,19 @@ import ma.formations.multiconnector.dtos.transaction.TransactionDto;
 import ma.formations.multiconnector.service.IBankAccountService;
 import ma.formations.multiconnector.service.ICustomerService;
 import ma.formations.multiconnector.service.ITransactionService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * SOAP Controller pour la banque
+ * UC-5 : Nouveau virement (corrigé pour récupérer username depuis le contexte de sécurité)
+ */
 @Component
 @WebService(serviceName = "BankWS")
 @AllArgsConstructor
-
 public class BankSoapController {
 
     private final IBankAccountService bankAccountService;
@@ -32,19 +37,15 @@ public class BankSoapController {
     private ITransactionService transactionService;
     private CommonTools commonTools;
 
-
     @WebMethod
-
     /**
-     *
-     @WebResult was user in order to replace return balise
-     by Customer balise in SOAP Response.
+     * @WebResult was user in order to replace return balise
+     * by Customer balise in SOAP Response.
      */
     @WebResult(name = "Customer")
     public List<CustomerDto> customers() {
         return customerService.getAllCustomers();
     }
-
 
     @WebMethod
     /**
@@ -86,7 +87,6 @@ public class BankSoapController {
         return bankAccountService.getBankAccountByRib(rib);
     }
 
-
     /**
      * @WebResult was user in order to replace return balise
      * by BankAccount balise in SOAP Response.
@@ -98,13 +98,21 @@ public class BankSoapController {
     }
 
     /**
+     * UC-5 : Effectuer un nouveau virement via SOAP
+     * Le username est récupéré depuis le contexte de sécurité
+     *
      * @WebResult was user in order to replace return balise
      * by Transaction balise in SOAP Response.
      */
     @WebResult(name = "Transaction")
     @WebMethod
     public AddWirerTransferResponse createWirerTransfer(@WebParam(name = "wirerTransferRequest") AddWirerTransferRequest dto) {
-        return transactionService.wiredTransfer(dto);
+        // Récupérer l'authentification depuis le contexte de sécurité
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // Appeler le service avec les 2 paramètres (dto + username)
+        return transactionService.wiredTransfer(dto, username);
     }
 
     /**
