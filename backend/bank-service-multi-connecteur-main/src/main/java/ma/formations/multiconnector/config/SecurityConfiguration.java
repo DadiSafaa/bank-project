@@ -83,10 +83,10 @@ public class SecurityConfiguration {
             auth.requestMatchers(new AntPathRequestMatcher("/auth/change-password"))
                     .authenticated();
 
-          /*  auth.requestMatchers(new AntPathRequestMatcher("/api/rest/customer/identity/**")).
-                    hasAnyAuthority("AGENT_GUICHET", "CLIENT");
-            auth.requestMatchers(new AntPathRequestMatcher("/api/rest/customer/agent_guichet/**")).
-                    hasAuthority("AGENT_GUICHET");*/
+            // 🆕 UC-4 : Dashboard accessible uniquement aux CLIENTS
+            auth.requestMatchers(new AntPathRequestMatcher("/api/rest/dashboard/**"))
+                    .hasRole("CLIENT");
+
             auth.anyRequest().authenticated();
         });
         http.authenticationProvider(authenticationProvider());
@@ -106,6 +106,4 @@ public class SecurityConfiguration {
                 new AntPathRequestMatcher("/js/**",
                         "/images/**"));
     }
-
-
 }
