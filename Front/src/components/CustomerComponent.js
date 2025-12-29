@@ -230,7 +230,7 @@ const CustomerComponent = () => {
 
                             <div className="row mb-3">
                                 <div className="col-md-6">
-                                    <label className="form-label">Numéro d'identité * (RG_4 : unique)</label>
+                                    <label className="form-label">Numéro d'identité * (unique)</label>
                                     <input
                                         type="text"
                                         className="form-control"
@@ -245,7 +245,7 @@ const CustomerComponent = () => {
                                     </small>
                                 </div>
                                 <div className="col-md-6">
-                                    <label className="form-label">Date de naissance * (RG_5)</label>
+                                    <label className="form-label">Date de naissance *</label>
                                     <input
                                         type="date"
                                         className="form-control"
@@ -269,7 +269,7 @@ const CustomerComponent = () => {
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    <label className="form-label">Email * (RG_6 : unique)</label>
+                                    <label className="form-label">Email * (unique)</label>
                                     <input
                                         type="email"
                                         className="form-control"
@@ -279,14 +279,14 @@ const CustomerComponent = () => {
                                         required
                                     />
                                     <small className="form-text text-muted">
-                                        RG_7 : Un email sera envoyé avec les identifiants
+                                        Un email sera envoyé avec les identifiants
                                     </small>
                                 </div>
                             </div>
 
                             <div className="row mb-3">
                                 <div className="col-md-12">
-                                    <label className="form-label">Adresse postale * (RG_5)</label>
+                                    <label className="form-label">Adresse postale *</label>
                                     <textarea
                                         className="form-control"
                                         value={address}

@@ -375,11 +375,11 @@ const WireTransfert = () => {
                                 <small className="text-muted">
                                     <strong>Règles appliquées :</strong>
                                     <ul className="mb-0 mt-1">
-                                        <li>RG_11 : Le compte ne doit pas être bloqué ou clôturé</li>
-                                        <li>RG_12 : Le solde doit être suffisant</li>
-                                        <li>RG_13 : Votre compte sera débité</li>
-                                        <li>RG_14 : Le compte destinataire sera crédité</li>
-                                        <li>RG_15 : Les deux opérations seront tracées avec date précise</li>
+                                        <li>Le compte ne doit pas être bloqué ou clôturé</li>
+                                        <li>Le solde doit être suffisant</li>
+                                        <li>Votre compte sera débité</li>
+                                        <li>Le compte destinataire sera crédité</li>
+                                        <li>Les deux opérations seront tracées avec date précise</li>
                                     </ul>
                                 </small>
                             </div>

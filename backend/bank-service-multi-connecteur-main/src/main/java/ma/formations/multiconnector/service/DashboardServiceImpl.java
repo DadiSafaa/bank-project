@@ -35,12 +35,16 @@ public class DashboardServiceImpl implements IDashboardService {
     private final BankAccountTransactionRepository transactionRepository;
     private final ModelMapper modelMapper;
 
-    @Override
-    public DashboardResponse getDashboard(String username, String rib, int page) {
-        // 1️⃣ Récupérer le client depuis son username (JWT)
-        Customer customer = customerRepository.findByUsername(username)
-                .orElseThrow(() -> new BusinessException(
-                        String.format("Client avec username [%s] introuvable", username)));
+
+// ✅ APRÈS - Vérifier d'abord si c'est un Customer
+        @Override
+        public DashboardResponse getDashboard(String username, String rib, int page) {
+            // Vérifier que l'utilisateur est bien un CLIENT (dans la table Customer)
+            Customer customer = customerRepository.findByUsername(username)
+                    .orElseThrow(() -> new BusinessException(
+                            "Aucun compte client trouvé. Cette fonctionnalité est réservée aux clients."));
+
+            // ... reste du code
 
         // 2️⃣ Récupérer tous les comptes du client
         List<BankAccount> allAccounts = bankAccountRepository.findByCustomer(customer);

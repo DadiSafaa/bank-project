@@ -67,13 +67,6 @@ const NavBar = () => {
                     </>
                 )}
 
-                {currentUser && (
-                    <li className="nav-item">
-                        <Link to={"/profile"} className="nav-link">
-                            Profile
-                        </Link>
-                    </li>
-                )}
             </div>
 
             {currentUser ? (

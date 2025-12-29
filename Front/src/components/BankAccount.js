@@ -173,13 +173,13 @@ const BankAccount = () => {
             {showAgentGuichetBoard && (
                 <div className="card mb-4">
                     <div className="card-header bg-success text-white">
-                        <h5>Créer un Nouveau Compte Bancaire (UC-3)</h5>
+                        <h5>Créer un Nouveau Compte Bancaire</h5>
                     </div>
                     <div className="card-body">
                         <form onSubmit={createBankAccount}>
                             {/* Étape 1 : Rechercher le client (RG_8) */}
                             <div className="mb-4 p-3 bg-light rounded">
-                                <h6 className="text-primary">Étape 1 : Identifier le client (RG_8)</h6>
+                                <h6 className="text-primary">Étape 1 : Identifier le client</h6>
                                 <div className="row">
                                     <div className="col-md-8">
                                         <label className="form-label">Numéro d'identité du client *</label>
@@ -192,7 +192,7 @@ const BankAccount = () => {
                                             disabled={searchingCustomer}
                                         />
                                         <small className="form-text text-muted">
-                                            RG_8 : Le client doit exister dans la base de données
+                                            Le client doit exister dans la base de données
                                         </small>
                                     </div>
                                     <div className="col-md-4 d-flex align-items-end">
@@ -229,7 +229,7 @@ const BankAccount = () => {
 
                             {/* Étape 2 : Saisir le RIB (RG_9) */}
                             <div className="mb-4 p-3 bg-light rounded">
-                                <h6 className="text-primary">Étape 2 : Saisir le RIB (RG_9)</h6>
+                                <h6 className="text-primary">Étape 2 : Saisir le RIB</h6>
                                 <div className="row">
                                     <div className="col-md-12">
                                         <label className="form-label">RIB (Relevé d'Identité Bancaire) *</label>
@@ -244,7 +244,7 @@ const BankAccount = () => {
                                             disabled={!customerInfo}
                                         />
                                         <small className="form-text text-muted">
-                                            RG_9 : Le RIB doit contenir 24 chiffres (formaté automatiquement)
+                                            Le RIB doit contenir 24 chiffres (formaté automatiquement)
                                         </small>
                                         {rib && (
                                             <div className="mt-2">
@@ -270,7 +270,7 @@ const BankAccount = () => {
                                             Création en cours...
                                         </>
                                     ) : (
-                                        "✅ Créer le compte (RG_10 : Statut OUVERT)"
+                                        "✅ Créer le compte (Statut: OUVERT)"
                                     )}
                                 </button>
                                 <button
